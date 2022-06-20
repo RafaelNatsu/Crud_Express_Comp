@@ -15,7 +15,8 @@
     "express": "^4.18.1",
     "fs": "^0.0.1-security",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^6.3.8"
+    "mongoose": "^6.3.8",
+    "slugify": "^1.6.5"
   },
   "devDependencies": {
     "@babel/cli": "^7.17.10",
