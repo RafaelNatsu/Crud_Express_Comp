@@ -24,6 +24,19 @@ router.get('/id/:projectId',(req , res) => {
     });
 });
 
+router.get('/idAndCategory/:projectId',(req , res) => {
+    // teste para ver como faz uma query
+    Project.find()
+        .where('category').equals(req.body.category)
+        .where('_id').equals(req.params.projectId)
+        .then(data => {
+        res.status(200).send(data);
+    }).catch( error => {
+        console.error("não foi possivel encontrar no DB",error);
+        res.status(400).send({error:"não encontrado"});
+    })
+});
+
 router.get('/slug/:idSlug',(req, res) => {
     Project.findOne(req.params.idSlug).then( data => {
         res.status(200).send(data);
@@ -31,7 +44,7 @@ router.get('/slug/:idSlug',(req, res) => {
         console.error("não foi encontrado o slug requerido",error);
         res.status(400).send({error:"slug não encontrada"});
     })
-})
+});
 
 /**
  * { title:str, 
