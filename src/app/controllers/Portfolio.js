@@ -2,6 +2,7 @@ import { Router } from "express";
 // import Project from "@/app/schemas/Project";
 import Project from "../schemas/Project";
 import Slugify from "../../utils/Slugify";
+import AuthMiddleware from '../middlewares/Auth';
 
 const router = new Router();
 
@@ -53,7 +54,7 @@ router.get('/slug/:idSlug',(req, res) => {
  *   category:str
  * }
  */
-router.post('/',(req , res) => {
+router.post('/',AuthMiddleware,(req , res) => {
     const { title, slug, description, category } = req.body;
     Project.create({ title, slug, description, category})
         .then( project => {
@@ -65,7 +66,7 @@ router.post('/',(req , res) => {
         });
 });
 
-router.put('/:projectId',(req , res) => {
+router.put('/:projectId',AuthMiddleware,(req , res) => {
     const { title, description, category } = req.body;
     let slug = undefined;
     if(title && title != ""){
@@ -83,7 +84,7 @@ router.put('/:projectId',(req , res) => {
     }
 });
 
-router.delete('/:projectId',(req , res) => {
+router.delete('/:projectId',AuthMiddleware,(req , res) => {
     Project.findByIdAndDelete(req.params.projectId).then(() => {
         res.status(200).send({message:"projeto deletado com sucesso"})
     }).catch(error => {
