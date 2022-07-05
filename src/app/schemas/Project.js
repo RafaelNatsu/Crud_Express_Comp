@@ -19,10 +19,13 @@ const ProjectSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    featuredImage:{
+        type: String,
+        required: true
+    },
     images: [
         {
-            type: String,
-            required: true,
+            type:String
         }
     ],
     createdAt: {

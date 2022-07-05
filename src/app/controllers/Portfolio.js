@@ -3,12 +3,20 @@ import { Router } from "express";
 import Project from "../schemas/Project";
 import Slugify from "../../utils/Slugify";
 import AuthMiddleware from '../middlewares/Auth';
+import Multer from "../middlewares/Multer";
 
 const router = new Router();
 
 router.get('/',(req , res) => {
     Project.find().then(data => {
-        const projetcs = data.map( project => {return {_id:project._id, title: project.title, category: project.category}});
+        const projetcs = data.map( project => {return {
+            _id:project._id, 
+            title: project.title, 
+            category: project.category,
+            slug: project.slug,
+            featuredImage: project.featuredImage,
+            images: project.images
+        }});
         res.status(200).send(projetcs);
     }).catch( error => {
         console.error("Não foi possivel retornar do banco de dados",error);
@@ -66,7 +74,41 @@ router.post('/',AuthMiddleware,(req , res) => {
         });
 });
 
-router.put('/:projectId',AuthMiddleware,(req , res) => {
+router.post('/featured-image/:projectId',[AuthMiddleware,Multer.single('featured-image')],(req,res) => {
+    const {file} = req;
+    if(file){
+        Project.findByIdAndUpdate(req.params.projectId,{$set:{
+            featuredImage: file.path
+        }},{new: true}).then(project => {
+            return res.send({project});
+        }).catch(err => {
+            console.error("erro ao salvar featured imagem ao projeto", err);
+            return res.status(500).send({ error: "Não foi possivel salvar o projeto. Verifique"});
+        });
+    } else {
+        return res.status(400).send({message:"nenhuma imagem enviada"});
+    }
+});
+
+router.post('/images/:projectId',Multer.single('image'),(req,res) => {
+    const {files} = req;
+    if(files && files.length > 0){
+        const images = [];
+        files.forEach( file => {
+            images.push(file.path);
+            Project.findByIdAndUpdate(req.params.projectId,{$set:{images}},{new: true}).then(project => {
+                return res.send({project});
+            }).catch(err => {
+                console.error("erro ao salvar featured imagem ao projeto", err);
+                return res.status(500).send({ error: "Não foi possivel salvar o projeto. Verifique"});
+            });
+        });
+    } else {
+        return res.status(400).send({message:"nenhuma imagem enviada"});
+    }
+});
+
+router.put('/:projectId',(req , res) => {
     const { title, description, category } = req.body;
     let slug = undefined;
     if(title && title != ""){

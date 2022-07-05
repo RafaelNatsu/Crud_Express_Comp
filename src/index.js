@@ -1,6 +1,6 @@
 import express, {Router} from 'express';
 import bodyParser from 'body-parser';
-import { Portifolio,Auth } from './app/controllers';
+import { Portifolio,Auth,Uploads } from './app/controllers';
 
 const app = express();
 const port = 3000;
@@ -12,6 +12,7 @@ const router = new Router();
 
 app.use('/portifolio',Portifolio);
 app.use('/auth',Auth);
+app.use('/uploads',Uploads);
 
 app.use(router);
 console.log(`Servidor rodando no link http://localhost:${port}`);
