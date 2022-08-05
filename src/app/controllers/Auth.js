@@ -26,7 +26,7 @@ router.post('/register',(req,res) => {
         } else {
             User.create({name,email,password}).then( user => {
                 // existe alguma forma de ja ao enviar ser formatado para não aparecer a senha?
-                // user.password = undefined;
+                user.password = undefined;
                 return res.status(200).send({user});
             }).catch( error => {
                 console.error("erro ao inserir novo registro de usuario",error);

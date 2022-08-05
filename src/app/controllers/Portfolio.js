@@ -77,10 +77,18 @@ router.post('/',AuthMiddleware,(req , res) => {
 router.post('/featured-image/:projectId',[AuthMiddleware,Multer.single('featured-image')],(req,res) => {
     const {file} = req;
     if(file){
+        const date = new Date();
         Project.findByIdAndUpdate(req.params.projectId,{$set:{
-            featuredImage: file.path
+            featuredImage: {
+                destination: file.destination,
+                fileName: file.filename,
+                addedIn: date
+            }
         }},{new: true}).then(project => {
-            return res.send({project});
+            if(project!=null){
+                return res.send({project});
+            }
+            return res.status(404).send({message:"Projeto não encontrado"});
         }).catch(err => {
             console.error("erro ao salvar featured imagem ao projeto", err);
             return res.status(500).send({ error: "Não foi possivel salvar o projeto. Verifique"});
@@ -90,18 +98,34 @@ router.post('/featured-image/:projectId',[AuthMiddleware,Multer.single('featured
     }
 });
 
-router.post('/images/:projectId',Multer.single('image'),(req,res) => {
+router.post('/images/:projectId',Multer.array('image'),(req,res) => {
     const {files} = req;
     if(files && files.length > 0){
         const images = [];
-        files.forEach( file => {
-            images.push(file.path);
+        const date = new Date();
+        let order = 0;
+        Project.findOne({_id:req.params.projectId}).then( finded =>{    
+            if(finded == null){
+                return res.status(404).send({message:"Projeto não encontrado."});
+            }
+            files.forEach( file => {
+                images.push({
+                    order: order,
+                    destination: file.destination,
+                    fileName: file.filename,
+                    addedIn: date
+                });
+                order++;
+            });
             Project.findByIdAndUpdate(req.params.projectId,{$set:{images}},{new: true}).then(project => {
                 return res.send({project});
             }).catch(err => {
                 console.error("erro ao salvar featured imagem ao projeto", err);
                 return res.status(500).send({ error: "Não foi possivel salvar o projeto. Verifique"});
             });
+        }).catch(err => {
+            console.error("Não existe projeto\n", err);
+            return res.status(500).send({ error: "Não foi possivel salvar o projeto. Projeto inexistente"});
         });
     } else {
         return res.status(400).send({message:"nenhuma imagem enviada"});

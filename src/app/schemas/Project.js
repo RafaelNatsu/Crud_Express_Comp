@@ -20,12 +20,14 @@ const ProjectSchema = new mongoose.Schema({
         required: true
     },
     featuredImage:{
-        type: String,
-        required: true
+        type: Map,
+        of: String
+        // required: true
     },
     images: [
         {
-            type:String
+            type:Map,
+            of: String
         }
     ],
     createdAt: {
